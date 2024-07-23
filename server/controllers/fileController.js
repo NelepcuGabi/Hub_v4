@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { MongoClient, GridFSBucket } = require('mongodb');
 const multer = require('multer');
 const { GridFsStorage } = require('multer-gridfs-storage');
+const User = require('../models/userModel');
 
 const mongoURI = 'mongodb://127.0.0.1:27017/authentication';
 
@@ -19,10 +20,28 @@ client.connect().then(() => {
 });
 
 // Create storage engine
-exports.uploadFile = (req, res) => {
+exports.uploadFile = async (req, res) => {
     // Add logging to check if req.user is available
     console.log('User information in uploadFile:', req.user);
+    if (!req.user) {
+        return res.status(400).json({ error: 'User not authenticated' });
+    }
 
+    // Fetch user details if not present in req.user
+    if (!req.user.name) {
+        try {
+            const userId = new mongoose.Types.ObjectId(req.user.id); // Convert to ObjectId
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            req.user.name = user.name;
+            console.log('Fetched user name:', req.user.name); // Log fetched user name
+        } catch (err) {
+            console.error('Error fetching user details:', err);
+            return res.status(500).json({ error: 'An error occurred while fetching user details' });
+        }
+    }
     const storage = new GridFsStorage({
         url: mongoURI,
         options: { useNewUrlParser: true, useUnifiedTopology: true },
@@ -38,6 +57,7 @@ exports.uploadFile = (req, res) => {
                 metadata: {
                     title: req.body.title,
                     description: req.body.description,
+                    name: req.user.name ,
                     userId: req.user.id
                 }
             };
