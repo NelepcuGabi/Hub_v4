@@ -23,12 +23,16 @@ const storage = new GridFsStorage({
     url: mongoURI,
     options: { useNewUrlParser: true, useUnifiedTopology: true },
     file: (req, file) => {
+        if (!req.user || !req.user._id) {
+            throw new Error('User not authenticated');
+        }
         return {
             bucketName: 'uploads', // Collection name in MongoDB
             filename: `${Date.now()}-${file.originalname}`,
             metadata: {
                 title: req.body.title,
-                description: req.body.description
+                description: req.body.description,
+                userId: req.user._id
             }
         };
     }
@@ -39,8 +43,15 @@ const upload = multer({ storage });
 exports.uploadFile = (req, res) => {
     upload.single('file')(req, res, (err) => {
         if (err) {
+            console.error('Upload error:', err); // Log error details
             return res.status(500).json({ error: 'An error occurred while uploading the file' });
         }
+
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file was uploaded' });
+        }
+
+        console.log('Uploaded file:', req.file); // Log file details for debugging
         return res.status(201).json({ message: 'File uploaded successfully', file: req.file });
     });
 };
