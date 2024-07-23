@@ -19,32 +19,37 @@ client.connect().then(() => {
 });
 
 // Create storage engine
-const storage = new GridFsStorage({
-    url: mongoURI,
-    options: { useNewUrlParser: true, useUnifiedTopology: true },
-    file: (req, file) => {
-        if (!req.user || !req.user._id) {
-            throw new Error('User not authenticated');
-        }
-        return {
-            bucketName: 'uploads', // Collection name in MongoDB
-            filename: `${Date.now()}-${file.originalname}`,
-            metadata: {
-                title: req.body.title,
-                description: req.body.description,
-                userId: req.user._id
-            }
-        };
-    }
-});
-
-const upload = multer({ storage });
-
 exports.uploadFile = (req, res) => {
-    upload.single('file')(req, res, (err) => {
+    // Add logging to check if req.user is available
+    console.log('User information in uploadFile:', req.user);
+
+    const storage = new GridFsStorage({
+        url: mongoURI,
+        options: { useNewUrlParser: true, useUnifiedTopology: true },
+        file: (req, file) => {
+            // Add logging here to check if req.user is available inside file function
+            console.log('User information in GridFsStorage file function:', req.user);
+            if (!req.user || !req.user.id) {
+                throw new Error('User not authenticated');
+            }
+            return {
+                bucketName: 'uploads', // Collection name in MongoDB
+                filename: `${Date.now()}-${file.originalname}`,
+                metadata: {
+                    title: req.body.title,
+                    description: req.body.description,
+                    userId: req.user.id
+                }
+            };
+        }
+    });
+
+    const upload = multer({ storage }).single('file');
+
+    upload(req, res, (err) => {
         if (err) {
             console.error('Upload error:', err); // Log error details
-            return res.status(500).json({ error: 'An error occurred while uploading the file' });
+            return res.status(500).json({ error: 'An error occurred while uploading the file', details: err.message });
         }
 
         if (!req.file) {

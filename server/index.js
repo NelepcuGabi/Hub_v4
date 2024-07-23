@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const authRouter = require('./routes/authRoute.js')
 const fileRouter = require('./routes/fileRoute.js');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
  //MiddleWares
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

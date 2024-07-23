@@ -2,7 +2,7 @@ const {sign, verify} = require('jsonwebtoken');
 
 const createToken = (user) => {
     const accessToken = sign(
-        { username: user.username, id: user.id },
+        { username: user.username, id: user._id },
         "jwttelecomauth", 
         { expiresIn: '30d' }
     );
@@ -17,14 +17,13 @@ const validateToken = (req, res, next) => {
         return res.status(400).json({error : "User not Authenticated!"});
     
     try {
-        const validateToken = verify(accessToken, "jwttelecomauth")
-        if(validateToken) {
-            req.authenticated = true
-            return next()
-        }
-    }
-    catch (err) {
-        return res.status(400).json({error: err});
+        const validatedToken = verify(accessToken, "jwttelecomauth");
+        req.user = validatedToken; // Attach the decoded token to req.user
+        req.authenticated = true;
+        return next();
+    } catch (err) {
+        console.error('Token validation error:', err);
+        return res.status(400).json({ error: err.message });
     }
 }
 module.exports = { createToken, validateToken }

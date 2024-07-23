@@ -20,8 +20,10 @@ exports.signup = async(req, res, next) => {
         //JWT Assignment
         const token = createToken(newUser);
 
-        res.cookie("accessToken". accessToken, {
-            maxAge: 60*60*24*30*1000
+        res.cookie("accessToken", token, {
+            httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not accessible to JavaScript
+            secure: process.env.NODE_ENV === 'production', // Ensures the cookie is sent only over HTTPS in production
+            maxAge: 60 * 60 * 24 * 30 * 1000 // Cookie expiry time in milliseconds (30 days)
         });
 
         res.status(201).json({
@@ -58,10 +60,12 @@ exports.login = async(req, res, next) => {
 
         const token = createToken(user);
 
-        res.cookie("accessToken". accessToken, {
-            maxAge: 60*60*24*30*1000
+        res.cookie("accessToken", token, {
+            httpOnly: true, // Ensures the cookie is sent only over HTTP(S), not accessible to JavaScript
+            secure: process.env.NODE_ENV === 'production', // Ensures the cookie is sent only over HTTPS in production
+            maxAge: 60 * 60 * 24 * 30 * 1000 // (30 days)
         });
-
+        
         res.status(200).json({
             status: 'success',
             token,
