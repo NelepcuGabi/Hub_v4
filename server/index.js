@@ -1,8 +1,8 @@
 const express = require ('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authRouter = require('./routes/authRoute')
-const fileRouter = require('./routes/fileRoute');
+const authRouter = require('./routes/authRoute.js')
+const fileRouter = require('./routes/fileRoute.js');
 
 const app = express();
 
@@ -19,10 +19,7 @@ app.use('/api/files', fileRouter);
 
  //MongoDB Connection
 mongoose
-.connect('mongodb://127.0.0.1:27017/authentication', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+    .connect('mongodb://127.0.0.1:27017/authentication')
     .then(() => console.log('Connected to MongoDB!'))
     .catch((error)=>console.error("Failed to connect to MongoDB:", error));
 

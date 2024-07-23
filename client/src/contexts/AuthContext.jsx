@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
@@ -8,27 +9,31 @@ const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        const storedData = JSON.parse(localStorage.getItem('user_data'));
-        if (storedData) {
-            const { userToken, user } = storedData;
-            setToken(userToken);
-            setUserData(user);
+        const storedToken = Cookies.get('user_token');
+        const storedUserData = JSON.parse(localStorage.getItem('user_data'));
+        if (storedToken && storedUserData) {
+            setToken(storedToken);
+            setUserData(storedUserData);
             setIsAuthenticated(true);
         }
     }, []);
 
     const login = (newToken, newData) => {
-        localStorage.setItem('user_data', JSON.stringify({ userToken: newToken, user: newData }));
+        Cookies.set('user_token', newToken, { expires: 7 }); // Token will expire in 7 days
+        
         setToken(newToken);
         setUserData(newData);
         setIsAuthenticated(true);
+        alert("Autentificare reusita")
     };
 
     const logout = () => {
-        localStorage.removeItem('user_data');
+        Cookies.remove('user_token');
+       
         setToken(null);
         setUserData(null);
         setIsAuthenticated(false);
+        
     };
 
     return (
@@ -39,4 +44,4 @@ const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-export { AuthProvider }; 
+export { AuthProvider };

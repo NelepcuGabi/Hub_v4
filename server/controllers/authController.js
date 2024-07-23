@@ -1,5 +1,5 @@
 const User = require('../models/userModel');
-const jwt = require('jsonwebtoken')
+const { createToken } = require('../controllers/jwtController.js');
 const createError = require('../utils/appError')
 const bcrypt = require('bcryptjs');
 //Register
@@ -18,8 +18,10 @@ exports.signup = async(req, res, next) => {
         });
 
         //JWT Assignment
-        const token = jwt.sign({_id: newUser._id}, "jwttelecomauth", {
-            expiresIn: '90d',
+        const token = createToken(newUser);
+
+        res.cookie("accessToken". accessToken, {
+            maxAge: 60*60*24*30*1000
         });
 
         res.status(201).json({
@@ -54,8 +56,10 @@ exports.login = async(req, res, next) => {
             return next (new createError('Incorrect email or password!', 401));
         }
 
-        const token = jwt.sign({_id: user._id}, "jwttelecomauth", {
-            expiresIn: '90d',
+        const token = createToken(user);
+
+        res.cookie("accessToken". accessToken, {
+            maxAge: 60*60*24*30*1000
         });
 
         res.status(200).json({

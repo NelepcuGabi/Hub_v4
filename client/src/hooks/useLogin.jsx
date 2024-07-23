@@ -26,10 +26,10 @@ const useLogin = () => {
             } else if (res.status === 404) {
                 setError(data.message);
             } else {
-                message.error('Registration failed');
+                message.error('Login failed');
             }
         } catch (error) {
-            message.error('Registration failed');
+            message.error('Login failed');
         } finally {
             setLoading(false);
         }

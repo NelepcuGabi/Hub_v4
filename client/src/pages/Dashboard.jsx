@@ -1,17 +1,34 @@
-import React from 'react';
-import { Avatar, Button, Card, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Button, Card, Typography, Spin } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import { UserOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { userData, logout } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userData) {
+      navigate('/login'); // Redirect to login if no user data
+    } else {
+      setLoading(false);
+    }
+  }, [userData, navigate]);
 
   const handleLogout = async () => {
+    setLoading(true);
     await logout();
+    navigate('/login'); // Redirect to login on logout
   };
 
-  if (!userData) {
-    return <Typography.Text>Loading...</Typography.Text>;
+  if (loading) {
+    return (
+      <div className="loading-container">
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return (
