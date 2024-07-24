@@ -125,3 +125,35 @@ exports.getFileByName = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while retrieving the file' });
     }
 };
+exports.getFileById = async (req, res) => {
+    const { id } = req.params;
+
+    if (!gfsBucket) {
+        return res.status(500).json({ error: 'GridFSBucket is not initialized' });
+    }
+
+    try {
+        // Convert id to ObjectId if necessary
+        const objectId = new mongoose.Types.ObjectId(id);
+
+        // Find the file by its ObjectId
+        const files = await gfsBucket.find({ _id: objectId }).toArray();
+
+        if (files.length === 0) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        // Send file metadata
+        const file = files[0];
+        res.status(200).json({
+            id: file._id,
+            filename: file.filename,
+            contentType: file.contentType,
+            length: file.length,
+            uploadDate: file.uploadDate,
+        });
+    } catch (err) {
+        console.error('Error finding file:', err);
+        res.status(500).json({ error: 'An error occurred while retrieving the file' });
+    }
+};

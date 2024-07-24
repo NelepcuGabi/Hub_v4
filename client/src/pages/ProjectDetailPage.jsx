@@ -3,48 +3,56 @@ import { useParams } from 'react-router-dom';
 import '../styles/ProjectDetailPage.css'; // Ensure you have styles for the detail page
 
 function ProjectDetailPage() {
-  const { id } = useParams(); // Get project ID from URL
-  const [project, setProject] = useState(null);
+    // Get the project ID from the URL
+    const { id } = useParams();
+    const [project, setProject] = useState(null); // Initialize state to null for loading state
+    const [error, setError] = useState(null); // State to hold any error messages
+    
+    useEffect(() => {
+        async function fetchProject() {
+            const response = await fetch(`http://localhost:3000/api/files/${id}`);
+            console.log(response)
+            if (!id) {
+                setError('No project ID provided');
+                return;
+            }
 
-  useEffect(() => {
-    async function fetchProject() {
-      try {
-        const response = await fetch(`http://localhost:3000/api/files/files${title}`); // Adjust API route as needed
-        if (response.ok) {
-          const projectData = await response.json();
-          setProject(projectData);
-        } else {
-          console.error('Failed to fetch project. Status:', response.status);
-          setProject(null); // Handle error by setting project to null
+            try {
+                const response = await fetch(`http://localhost:3000/api/files/files/${id}`);
+                if (response.ok) {
+                    const file = await response.json();
+                    setProject(file); // Set project data
+                } else {
+                    throw new Error('Failed to fetch project. Status: ' + response.status);
+                }
+            } catch (error) {
+                setError(error.message); // Set error message to state
+                console.error('Error fetching project:', error);
+            }
         }
-      } catch (error) {
-        console.error('Error fetching project:', error);
-        setProject(null); // Handle error by setting project to null
-      }
+
+        fetchProject();
+    }, [id]); // Dependency array includes id to refetch if it changes
+
+    if (error) {
+        return <div>Error: {error}</div>; // Show error message
     }
 
-    fetchProject();
-  }, [id]);
+    if (!project) {
+        return <div>Loading...</div>; // Show a loading message while fetching
+    }
 
-  if (project === null) {
-    return <div>Loading...</div>; // Show a loading message or component while fetching
-  }
-
-  // Check if project.metadata is available
-  const { metadata } = project;
-  if (!metadata) {
-    return <div>No project details available.</div>; // Handle the case where metadata is not present
-  }
-
-  return (
-    <div className="project-detail-page">
-      <h2>{metadata.title || 'No title available'}</h2>
-      <p>{metadata.description || 'No description available'}</p>
-      {metadata.imageUrl && <img src={metadata.imageUrl} alt={metadata.title || 'No title available'} />}
-      <div>Author: {metadata.name || 'No author information'}</div>
-      {/* Add additional project details here */}
-    </div>
-  );
+    return (
+        <div className="project-detail-page">
+            <h2>{project.title || 'No title available'}</h2>
+            <p>{project.description || 'No description available'}</p>
+            {project.imageUrl && <img src={project.imageUrl} alt={project.title || 'No title available'} />}
+            <div>Author: {project.author || 'No author information'}</div>
+            <div>Type: {project.type || 'No type information'}</div>
+            <div>Difficulty: {project.difficulty || 'No difficulty information'}</div>
+            {/* Add additional project details here */}
+        </div>
+    );
 }
 
 export default ProjectDetailPage;

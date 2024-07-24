@@ -24,6 +24,7 @@ app.use('/uploads', express.static('uploads'));
 app.use ('/api/auth', authRouter);
 app.use('/api/files', fileRouter);
 
+
  //MongoDB Connection
 mongoose
     .connect('mongodb://127.0.0.1:27017/authentication')
