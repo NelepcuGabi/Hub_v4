@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Proiecte.css';
 import { useAuth } from '../contexts/AuthContext';
+import { message } from 'antd';
 
 function UploadProject() {
   const { token } = useAuth(); // Get the token from the Auth context
   const [title, setTitle] = useState('');
+  const [type, setType] = useState('');
+  const [difficulty, setDifficulty] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
   const [user, setUser] = useState({ id: '', name: '' });
@@ -14,8 +17,6 @@ function UploadProject() {
       console.error('Token is null or undefined');
       return;
     }
-  
-    console.log('Token:', token);
 
     async function fetchUserDetails() {
       try {
@@ -26,13 +27,13 @@ function UploadProject() {
           },
           credentials: 'include',
         });
-  
-        console.log('Response:', response); 
-  
+
+        console.log('Response:', response);
+
         if (response.ok) {
           const userDetails = await response.json();
           setUser(userDetails);
-          console.log('User details:', userDetails); // Log user details
+          console.log('User details:', userDetails);
         } else {
           console.error('Failed to fetch user details', response.status, await response.text());
         }
@@ -40,7 +41,7 @@ function UploadProject() {
         console.error('Error fetching user details:', error);
       }
     }
-  
+
     fetchUserDetails();
   }, [token]);
 
@@ -54,6 +55,8 @@ function UploadProject() {
 
     const formData = new FormData();
     formData.append('title', title);
+    formData.append('type', type);
+    formData.append('difficulty', difficulty);
     formData.append('description', description);
     formData.append('file', file);
     formData.append('userId', user.id); // Include userId
@@ -70,18 +73,20 @@ function UploadProject() {
       });
 
       if (response.ok) {
-        alert('Proiectul a fost încărcat cu succes!');
+        message.success('Proiectul a fost încărcat cu succes!');
         setTitle('');
         setDescription('');
         setFile(null);
+        setType(''); // Reset type
+        setDifficulty(''); // Reset difficulty
       } else {
         const errorData = await response.json();
         console.error('Upload error:', errorData);
-        alert(`Eroare la încărcarea proiectului: ${errorData.error}`);
+        message.error(`Eroare la încărcarea proiectului: Trebuie sa te loghezi`);
       }
     } catch (error) {
       console.error('Eroare la încărcarea proiectului:', error);
-      alert('Eroare la încărcarea proiectului: Failed to fetch');
+      message.error('Eroare la încărcarea proiectului');
     }
   };
 
@@ -98,6 +103,33 @@ function UploadProject() {
             onChange={(e) => setTitle(e.target.value)}
             required
           />
+        </div>
+        <div className="form-group">
+          <label htmlFor="type">Tip:</label>
+          <select
+            id="type-select" // Changed ID to 'type-select'
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
+            <option value="">Selectează tipul</option> {/* Added default empty option */}
+            <option value="programare">Programare</option>
+            <option value="retelistica">Retelistica</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="difficulty">Dificultate:</label>
+          <select
+            id="difficulty-select" // Changed ID to 'difficulty-select'
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            required
+          >
+            <option value="">Selectează dificultatea</option> {/* Added default empty option */}
+            <option value="option1">Incepator</option>
+            <option value="option2">Mediu</option>
+            <option value="option3">Avansat</option>
+          </select>
         </div>
         <div className="form-group">
           <label htmlFor="description">Descriere:</label>

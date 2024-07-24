@@ -1,0 +1,30 @@
+.project-card-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .project-card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    transition: transform 0.3s;
+  }
+  
+  .project-card:hover {
+    transform: scale(1.02);
+  }
+  
+  .card-image img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .card-content h3 {
+    margin: 0;
+  }
+  
+  .card-author p {
+    margin: 0;
+  }
+  
