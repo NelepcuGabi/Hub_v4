@@ -1,33 +1,48 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/Proiecte.css';
+import { useAuth } from '../contexts/AuthContext';
 
 function UploadProject() {
+  const { token } = useAuth(); // Get the token from the Auth context
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [file, setFile] = useState(null);
   const [user, setUser] = useState({ id: '', name: '' });
 
   useEffect(() => {
+    if (!token) {
+      console.error('Token is null or undefined');
+      return;
+    }
+  
+    console.log('Token:', token);
+
     async function fetchUserDetails() {
       try {
         const response = await fetch('http://localhost:3000/api/user/me', {
           method: 'GET',
-          credentials: 'include', // Ensure cookies are included
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
         });
-
+  
+        console.log('Response:', response); 
+  
         if (response.ok) {
           const userDetails = await response.json();
           setUser(userDetails);
+          console.log('User details:', userDetails); // Log user details
         } else {
-          console.error('Failed to fetch user details');
+          console.error('Failed to fetch user details', response.status, await response.text());
         }
       } catch (error) {
         console.error('Error fetching user details:', error);
       }
     }
-
+  
     fetchUserDetails();
-  }, []);
+  }, [token]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -47,8 +62,11 @@ function UploadProject() {
     try {
       const response = await fetch('http://localhost:3000/api/files/upload', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`, // Include the token in the headers
+        },
         body: formData,
-        credentials: 'include', // Ensure cookies are included
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -63,6 +81,7 @@ function UploadProject() {
       }
     } catch (error) {
       console.error('Eroare la încărcarea proiectului:', error);
+      alert('Eroare la încărcarea proiectului: Failed to fetch');
     }
   };
 
