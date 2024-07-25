@@ -4,7 +4,8 @@
   "description": "authentication app",
   "main": "index.js",
   "scripts": {
-    "start": "nodem index.js"
+    "start": "nodem index.js",
+    "build": "npm install; npm run build"
   },
   "author": "telecom",
   "license": "ISC",
