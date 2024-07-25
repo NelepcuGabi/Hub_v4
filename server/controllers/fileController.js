@@ -95,7 +95,6 @@ exports.getFiles = async (req, res) => {
         res.status(500).json({ error: 'An error occurred while retrieving files' });
     }
 };
-
 exports.getFileByName = async (req, res) => {
     const { filename } = req.params;
 
@@ -105,6 +104,7 @@ exports.getFileByName = async (req, res) => {
 
     try {
         const files = await gfsBucket.find({ filename }).toArray();
+
         if (!files || files.length === 0) {
             return res.status(404).json({ message: 'File not found' });
         }
@@ -113,7 +113,7 @@ exports.getFileByName = async (req, res) => {
         const readstream = gfsBucket.openDownloadStream(file._id);
 
         res.setHeader('Content-Type', file.contentType);
-        res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+        res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`); // inline for preview
 
         readstream.on('error', (err) => {
             res.status(500).json({ error: 'An error occurred while streaming the file' });
@@ -151,6 +151,7 @@ exports.getFileById = async (req, res) => {
             contentType: file.contentType,
             length: file.length,
             uploadDate: file.uploadDate,
+            metadata: file.metadata // Ensure metadata is included
         });
     } catch (err) {
         console.error('Error finding file:', err);
