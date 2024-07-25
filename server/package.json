@@ -4,7 +4,8 @@
   "description": "authentication app",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "npm run build"
     
   },
   "author": "telecom",
