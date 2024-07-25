@@ -9,7 +9,7 @@ import Navbar from './components/NavBar.jsx';
 import Proiecte from './pages/Proiecte.jsx'
 import ProjectsPage from './pages/Projects.jsx'
 import { useAuth } from "./contexts/AuthContext.jsx";
-
+import Profile from './pages/Profile.jsx'
 import ProjectDetailPage from './pages/ProjectDetailPage.jsx'; // Create this component
 
 const App = () => {
@@ -32,6 +32,7 @@ const App = () => {
         <Route path="/upload" element={<Proiecte/>}/>
         
         <Route path="/project/:id" element={<ProjectDetailPage />} />
+        <Route path='/profile' element={<Profile/>}></Route>
         
       </Routes>
     </Router>

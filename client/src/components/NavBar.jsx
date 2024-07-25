@@ -56,6 +56,12 @@ function Navbar() {
                 Incarca
               </Link>
             </li>
+            <li className="nav__item">
+              <Link to="/profile" className="nav__link" onClick={navToggle}>
+             
+              </Link>
+            </li>
+
           </>
         ) : (
           <>
